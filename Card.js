@@ -2,11 +2,17 @@
  * Created by rplees on 3/21/16.
  */
 'use strict';
+const CardTypeEnum = {
+    NN: 1,
+    N: 2,
+    MN: 3,
+}
+
 const CardColorEnum = {
-    HEI: 1,
-    HONG: 2,
-    MEI: 3,
-    FANG: 4,
+    HEI: 4,
+    HONG: 3,
+    MEI: 2,
+    FANG: 1,
 }
 
 function Card(point, colorEnum) {
@@ -72,3 +78,4 @@ Card.prototype.toString = function () {
 
 exports.Card = Card;
 exports.CardColorEnum = CardColorEnum;
+exports.CardTypeEnum = CardTypeEnum;

@@ -88,4 +88,4 @@ CombineAlgorithm.prototype.getResult = function() {
     return this.obj;
 }
 
-exports.CombineAlgorithm = CombineAlgorithm;
+module.exports = CombineAlgorithm;
