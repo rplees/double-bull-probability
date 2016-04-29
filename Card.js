@@ -18,15 +18,16 @@ const CardColorEnum = {
 function Card(point, colorEnum) {
     this.point = point;
     this.colorEnum = colorEnum;
+    this.weight = this._weight();
 }
 
 /**
  * 获取牌的权重值  点数(整数) + (黑红梅方)
  */
-Card.prototype.weight = function () {
+Card.prototype._weight = function () {
     let format = this.point;
     if(this.colorEnum) {
-        format + "." + this.colorEnum;
+        format += "." + this.colorEnum;
     }
     return parseFloat(format);
 }

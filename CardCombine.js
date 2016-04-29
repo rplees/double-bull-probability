@@ -5,21 +5,19 @@
 
 //const Card = require("./Card").Card;
 const CardTypeEnum = require("./Card").CardTypeEnum;
-const  CombineAlgorithm = require('./CombineAlgorithm');
+const CombineAlgorithm = require('./CombineAlgorithm');
 const _ = require('lodash');
 
-function CardLogic(sourceCards) {
-    //this.sourceCards = [c1, c2, c3, c4, c5];
-    this.sourceCards = sourceCards;
-    //console.log(this.sourceCards.join(","));
-    this.sourceCards.sort(function(o1, o2) { //倒序
-        return o2.weight() - o1.weight();
+function CardCombine(combines) {
+    this.combines = combines;
+    this.combines.sort(function(o1, o2) { //倒序
+        return o2 - o1;
     });
 
     this.calc();
 }
 
-CardLogic.prototype.formatCardPointToCalc = function(p) {
+CardCombine.prototype.formatCardPointToCalc = function(p) {
     return p > 10 ? 10 : p;
 }
 /**
@@ -30,7 +28,7 @@ CardLogic.prototype.formatCardPointToCalc = function(p) {
  * @param points <Array> 5张牌的点数
  * @return <Array>  null => 没牛, 不为空则是 返回组合成牛牛的最近方案
  */
-CardLogic.prototype.tryFindBest = function (points) {
+CardCombine.prototype.tryFindBest = function (points) {
     var combines = new CombineAlgorithm(points, 3).getResult();
     //判断是否有牛牛
     var best = null;
@@ -52,7 +50,7 @@ CardLogic.prototype.tryFindBest = function (points) {
  * @param best
  * @returns {number}
  */
-CardLogic.prototype.result = function(points, best) {
+CardCombine.prototype.result = function(points, best) {
     //console.log("CardLogic>result>best:%s", best);
     let bestCopy = best.slice();
     var _this = this;
@@ -65,6 +63,7 @@ CardLogic.prototype.result = function(points, best) {
 
             _this.formatCardPointToCalc) % 10;
 }
+
 /**
  * 计算5张牌的牛牛信息
  * @param c1
@@ -73,16 +72,15 @@ CardLogic.prototype.result = function(points, best) {
  * @param c4
  * @param c5
  */
-CardLogic.prototype.calc = function() {
-    var points = this.sourceCards.map((v, i) => v.point);
+CardCombine.prototype.calc = function() {
+    var points = this.combines.map((v, i) => parseInt(v));
     //判断是否有牛牛
     var best = this.tryFindBest(points);
 
     if(best) {//有牛 best 是最佳的组合,计算牛几
-        //console.log("best:%s, f:%s", best, !best);
         let p = this.result(points, best);
         if(p === 0) {//牛牛
-            this.set(this.sourceCards.slice(), CardTypeEnum.NN, 0);
+            this.set(this.combines.slice(), CardTypeEnum.NN, 0);
             //console.log("%s 牛牛", points.join(","));
         } else {
             //找到最佳的方案 点数倒序 | 色块升序
@@ -92,23 +90,24 @@ CardLogic.prototype.calc = function() {
              * sortCards = [5, 3, 2, 4, 3]
              * @type {Array}
              */
-            this.set(_.sortBy(this.sourceCards, function(o) { return best.indexOf(o.point) == -1}), CardTypeEnum.N, p);
+            this.set(_.sortBy(this.combines, function(o) { return best.indexOf(parseInt(o)) == -1}), CardTypeEnum.N, p);
             /**
              * best 组合有可能 [4, 3, 3], 这时候要排序出现的2个3的牌的顺序
              */
             //console.log("%s 有牛,为牛: %s" ,points.join(","), p);
         }
     } else {//无牛
-        this.set(this.sourceCards.slice(), CardTypeEnum.MN, -1);
+        this.set(this.combines.slice(), CardTypeEnum.MN, -1);
         //console.log("%s 无牛.", points.join(","));
     }
 }
 
-CardLogic.prototype.set = function(sortCards, cardTypeEnum, niuPoint) {
-    //this.sortCards = sortCards;
+CardCombine.prototype.set = function(sortCombines, cardTypeEnum, niuPoint) {
+    //this.sortCombines = sortCombines;
     this.cardTypeEnum = cardTypeEnum;
     this.niuPoint = niuPoint;
-    this.maxWeight = _.maxBy(this.sourceCards, o => o.weight()).weight();
+    this.maxWeight = this.combines[0];
+    //this.maxWeight = _.maxBy(sortCombines, o => o);
 }
 
-module.exports = CardLogic;
+module.exports = CardCombine;
