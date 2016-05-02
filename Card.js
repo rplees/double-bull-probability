@@ -80,3 +80,26 @@ Card.prototype.toString = function () {
 exports.Card = Card;
 exports.CardColorEnum = CardColorEnum;
 exports.CardTypeEnum = CardTypeEnum;
+exports.CardFormat = {
+    formatFromWeights: function (array) {
+        var retArray = [];
+        for (var i in array) {
+            retArray.push(this.formatFromWeight(array[i]));
+        }
+
+        return retArray;
+    },
+
+    formatFromWeight: function (weight) {
+        var v = weight + '', p, e;
+        if (v.indexOf(".") > -1) {
+            p = parseInt(weight);
+            e = parseInt(v.substring(v.indexOf(".") + 1));
+        } else {
+            e = null;
+            p = weight;
+        }
+
+        return new Card(p, e);
+    }
+}

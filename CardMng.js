@@ -19,9 +19,8 @@ module.exports = {
         }
 
         var cacheMap = {};
-        this.__a(cacheMap, new Card(15));//大王
         this.__a(cacheMap, new Card(14));//小王
-
+        this.__a(cacheMap, new Card(15));//大王
 
         for(var point = 13 ; point >= 1; point--) {
             for(var color in CardColorEnum) {
@@ -33,19 +32,7 @@ module.exports = {
         return this.cacheMap;
     },
 
-    //getCard: function(weight) {
-    //    var v = weight + '', p, e;
-    //    if(v.indexOf(".") > -1) {
-    //        p = parseInt(weight);
-    //        e = parseInt(v.substring(v.indexOf(".") + 1));
-    //    } else {
-    //        e = null;
-    //        p = weight;
-    //    }
-    //    return new Card(p, e);
-    //},
-
     getWeights: function () {
-        return _.map(_.keys(this._getCacheMap()), function(v) {return parseFloat(v)});
+        return _.map(_.keys(this._getCacheMap()), function(v) {return parseFloat(v)}).sort(function(o1, o2) { return o2 - o1;});
     }
 }

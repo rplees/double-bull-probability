@@ -2,6 +2,7 @@
  * Created by rplees on 3/21/16.
  */
 'use strict';
+const CardFormat = require('./Card').CardFormat;
 const CardMng = require('./CardMng');
 const CombineAlgorithm = require('./CombineAlgorithm');
 const CardCombine = require('./CardCombine');
@@ -32,13 +33,23 @@ var rmdir = function(dir) {
 
 module.exports = {
     PARENT_PATH: './data',
+    STAT_FILE: './data/stat.json',
+
     stat : function () {
         let start = new Date().getTime();
-        console.log("stat begin. %s", new Date());
         var cardWeights = CardMng.getWeights();
-        console.log("一副牌信息:%s", cardWeights.join("  "));
+
+        console.log("一副牌信息:%s", CardFormat.formatFromWeights(cardWeights));
         var cardWeightCombines = new CombineAlgorithm(cardWeights, 5).getResult();
         console.log("一副牌里总共有%s个5张牌的组合.", cardWeightCombines.length);
+        console.log("stat begin. %s", new Date());
+        //start = new Date().getTime();
+        //console.log("empty each. %s", new Date());
+        //var _ooo = 1;
+        //cardWeightCombines.forEach(() => {
+        //    _ooo ++;
+        //});
+        //console.log("empty each. %s, 耗时:%s", new Date(), new Date().getTime() - start);
 
         var cardCombines = [];
         cardWeightCombines.forEach((combine) => {
@@ -52,11 +63,11 @@ module.exports = {
             }
 
             /**
-             * 同样的情况下,有点数的越高越靠前,到这一步 有俩种情况(牛牛的情况下 niuPoint === 0)
+             * 同样的情况下,有点数的越高越靠前,到这一步有俩种情况(牛牛的情况下 niuPoint === 0)
              * 1,有牛
              * 2,无牛
              */
-            if(o1.niuPoint != o2.niuPoint) {//同样的情况下,有点数的越高越靠前(到这一步 有俩种)
+            if(o1.niuPoint != o2.niuPoint) {
                 return o2.niuPoint - o1.niuPoint;
             }
 
@@ -72,10 +83,10 @@ module.exports = {
              * 3,都有牛的情况也,也是比最大的牌
              *
              * 如果有些地方下面俩种情况判定 1 大的话,
-             * 可以使用 CardLogic.sortCards 的第一个元素的weight比较,
-             * 因为sortCards值是已经按照组合成牛牛的组合排序过的
-             * *1) 5,3,2, 2,5
-             * *2) 4,3,3, 8,9
+             * 可以使用 CardCombine.sortCombines 的第一个元素的weight比较,
+             * 因为sortCombines值是已经按照组合成牛牛的组合排序过的
+             *  *1) 5,3,2, 2,5
+             *  *2) 4,3,3, 8,9
              */
             if(o1.combines[0] != o2.combines[0]) {
                 return o2.combines[0] - o1.combines[0];
@@ -97,7 +108,7 @@ module.exports = {
         });
 
         console.log("stat end. %s, 耗时:%s毫秒", new Date(), (new Date().getTime() - start));
-        console.log("最大:%s,最小:%s", cardCombines[0].combines.join(","), cardCombines[cardCombines.length - 1].combines.join(","));
+        console.log("最大:%s,最小:%s", CardFormat.formatFromWeights(cardCombines[0].combines),  CardFormat.formatFromWeights(cardCombines[cardCombines.length - 1].combines));
         return cardCombines;
     },
 
@@ -118,6 +129,9 @@ module.exports = {
                 o[level1Key] = childObj;
             }
 
+            /**
+             * 只保存每组牌的排名
+             * */
             childObj[_this.buildCardCombineKeyRule(cardCombine)] = i + 1;
         });
         console.log("结束分组. %s, 耗时:%s", new Date(), (new Date().getTime() - start.getTime()));
@@ -135,7 +149,7 @@ module.exports = {
             fs.writeFileSync(this.PARENT_PATH + "/" + i, JSON.stringify(o[i]));
         }
 
-        fs.writeFileSync(this.PARENT_PATH + "/stat", JSON.stringify({size: cardCombines.length}));
+        fs.writeFileSync(this.STAT_FILE, JSON.stringify({size: cardCombines.length}));
         console.log("结束保存到目录. %s, 耗时:%s", new Date(), (new Date().getTime() - start.getTime()));
     },
 
@@ -164,17 +178,15 @@ module.exports = {
 
     getRank(cardCombine) {
         let groupKey = this.buildGroupKeyRule(cardCombine);
-        if(!fs.existsSync(this.PARENT_PATH + "/stat")) {//初始化data
+        if(!fs.existsSync(this.STAT_FILE)) {//初始化统计数据并保存到文件
             this.statWriteFile();
         }
 
         let start = new Date().getTime();
         console.log('loading file %s start. %s', groupKey, new Date());
         const data = require(this.PARENT_PATH + '/' + groupKey);
-        console.log(this.buildCardCombineKeyRule(cardCombine));
         let info = data[this.buildCardCombineKeyRule(cardCombine)];
-        console.log("查找到数据: %s", info);
-        console.log('loading file %s end. %s, 耗时 %s 毫秒', groupKey, new Date(), new Date().getTime() - start);
+        console.log('loading file %s end. %s, 耗时 %s 毫秒, 查找到排名: %s', groupKey, new Date(), new Date().getTime() - start, info);
 
         return info;
     },
@@ -182,7 +194,9 @@ module.exports = {
     winRate : function () {
         var cardCombine;
         if(arguments.length == 1) {
-            if(arguments[0] instanceof Array  && arguments[0].length == 5) {
+            if(arguments[0] instanceof CardCombine) {
+                cardCombine = arguments[0];
+            } else if(arguments[0] instanceof Array  && arguments[0].length == 5) {
                 cardCombine = new CardCombine(arguments[0]);
             } else {
                 throw new Error("只有一个参数的时候,数组的长度一定要为5.");
@@ -196,12 +210,27 @@ module.exports = {
             cardCombine = new CardCombine(arguments);
         }
 
-        var rank = this.getRank(cardCombine);
-        let total = 3162510;
+        /**
+         * 由于每组牌出现后,这组牌的每张牌的所有组合按道理说应该不会存在了,
+         * 应该要去掉那些不会存在的牌后在计算,
+         * 按这精确计算出来的与不去掉算出来的误差非常非常的小(总组合3162510),
+         * 还有计算去掉的也很耗时,所以就允许存在这个误差.
+         *
+         * 但有种情况需要手工的去掉,比如 [大王,2,3,5,10],这个的rank虽然不是第一,但出现这牌由于牛牛并且最大的也是大王,所以胜率也是100%(跟[大王,小王,K, K, K]一样)
+         * **/
+        let total = 1;
+        let rank = -1;
+        if(cardCombine.cardTypeEnum === CardTypeEnum.NN && cardCombine.maxWeight === 15) {
+            rank = 1;
+        } else {
+            rank = this.getRank(cardCombine);
 
-        if(rank === total) {//最后一名
-            rank += 1;
+            total = require(this.STAT_FILE).size;
+            if(rank === total) {//最后一名
+                rank += 1;
+            }
         }
+
         return ((total - rank + 1) / total).toFixed(10);
     }
 }

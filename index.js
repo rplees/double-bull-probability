@@ -5,12 +5,15 @@
 const CardCombineMng = require('./CardCombineMng');
 const CombineAlgorithm = require('./CombineAlgorithm');
 const  CardColorEnum = require('./Card').CardColorEnum;
+const  CardFormat = require('./Card').CardFormat;
+const  CardCombine = require('./CardCombine');
 const  Card = require('./Card').Card;
 //CardCombineMng.statWriteFile();
 
 var exe = function (c) {
-    let rate = CardCombineMng.winRate(c);
-    console.log(" %s 牌的胜率为: %s", c.join('~'), rate);
+    let cardCombine = new CardCombine(c);
+    let rate = CardCombineMng.winRate(cardCombine);
+    console.log("%s 牌的胜率为: %s", cardCombine.formatResult(), rate);
 }
 
 var array = [];
