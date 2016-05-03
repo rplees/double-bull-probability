@@ -1,16 +1,30 @@
 {
   "name": "double-bull-probability",
   "version": "1.0.0",
-  "description": "",
+  "description": "- 54张牌里总有3162510组合的5张牌的信息,计算每组牌的排名后再查询赢的概率.",
   "main": "index.js",
   "dependencies": {
     "lodash": "^4.11.1"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/test.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "牛牛",
+    "概率",
+    "胜率",
+    "组合",
+    "大小"
+  ],
+  "author": "rplees <rplees.i.ly@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rplees/double-bull-probability.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rplees/double-bull-probability/issues"
+  },
+  "homepage": "https://github.com/rplees/double-bull-probability#readme"
 }
