@@ -19,8 +19,8 @@ module.exports = {
         }
 
         var cacheMap = {};
-        this.__a(cacheMap, new Card(14));//小王
         this.__a(cacheMap, new Card(15));//大王
+        this.__a(cacheMap, new Card(14));//小王
 
         for(var point = 13 ; point >= 1; point--) {
             for(var color in CardColorEnum) {
@@ -33,6 +33,9 @@ module.exports = {
     },
 
     getWeights: function () {
-        return _.map(_.keys(this._getCacheMap()), function(v) {return parseFloat(v)}).sort(function(o1, o2) { return o2 - o1;});
+        return _.keys(this._getCacheMap(), o => parseInt(o))
+                .sort(function(o1, o2) {
+                    return o2 - o1;
+                });
     }
 }

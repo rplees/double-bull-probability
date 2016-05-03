@@ -8,6 +8,8 @@ const CardFormat = require("./Card").CardFormat;
 const CombineAlgorithm = require('./CombineAlgorithm');
 const _ = require('lodash');
 
+const START_CHAT = 'A'.charCodeAt();
+
 function CardCombine(combines) {
     this.combines = combines;
     //传入进来的就是牌有大到小排序的
@@ -18,7 +20,8 @@ function CardCombine(combines) {
 }
 
 CardCombine.prototype.formatCardPointToCalc = function(p) {
-    return p > 10 ? 10 : p;
+    let charCodeAt = CardFormat.weightConvertPoint(p);
+    return charCodeAt > 10 ? 10 : charCodeAt;
 }
 /**
  * 计算牛牛规则
@@ -71,17 +74,13 @@ CardCombine.prototype.result = function(points, best) {
  * @param c5
  */
 CardCombine.prototype.calc = function() {
-    var points = this.combines.map((v, i) => parseInt(v));
-
     //判断是否有牛牛
-    var best = this.tryFindBest(points);
-
+    var best = this.tryFindBest(this.combines);
     if(best) {//有牛 best 是最佳的组合,计算牛几
-        let p = this.result(points, best);
+        let p = this.result(this.combines, best);
         if(p === 0) {//牛牛
             this.set(/**this.combines.slice(),**/CardTypeEnum.NN, 0);
-            //console.log("%s 牛牛", points.join(","));
-        } else {
+        } else {//有牛
             //找到最佳的方案 点数倒序 | 色块升序
             /**
              * 比如 points => [5, 4, 3, 3, 2]
@@ -93,7 +92,6 @@ CardCombine.prototype.calc = function() {
             /**
              * best 组合有可能 [4, 3, 3], 这时候要排序出现的2个3的牌的顺序
              */
-            //console.log("%s 有牛,为牛: %s" ,points.join(","), p);
         }
     } else {//无牛
         this.set(/**this.combines.slice(),**/ CardTypeEnum.MN, -1);
@@ -106,7 +104,6 @@ CardCombine.prototype.set = function(/**sortCombines,**/ cardTypeEnum, niuPoint)
     this.cardTypeEnum = cardTypeEnum;
     this.niuPoint = niuPoint;
     this.maxWeight = this.combines[0];
-    //this.maxWeight = _.maxBy(sortCombines, o => o);
 }
 
 CardCombine.prototype.formatResult = function() {

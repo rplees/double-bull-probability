@@ -2,10 +2,8 @@
  * Created by rplees on 3/21/16.
  */
 'use strict';
-const _ = require('lodash');
+const CHAR_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz";
 
-const CHAR_POOL = _.map("ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz");
-const START_CHAT = CHAR_POOL[0].charCodeAt();
 const CardTypeEnum = {
     NN: 1,
     N: 2,
@@ -22,17 +20,22 @@ const CardColorEnum = {
 function Card(point, colorEnum) {
     this.point = point;
     this.colorEnum = colorEnum;
+    /**
+     * 这个值不是数字类型,为了压缩key的长度
+     */
     this.weight = this._weight();
-    //console.log("%s:%s ==> weight: %s", point, colorEnum, this.weight);
 }
 
 /**
- * 获取牌的权重值  点数(整数) + (黑红梅方)
+ * 获取牌的权重值
+ * 点数(整数) + (黑红梅方)
  */
 Card.prototype._weight = function () {
-    var idx = parseInt((this.point - 1) * 4);
-    var v = CHAR_POOL[idx + ((this.colorEnum) ? this.colorEnum - 1 : 0)];
-    return v.charCodeAt();
+    let format = this.point;
+    if(this.colorEnum) {
+        format += "." + this.colorEnum;
+    }
+    return parseFloat(format);
 }
 
 Card.prototype.toString = function () {
@@ -94,19 +97,15 @@ exports.CardFormat = {
     },
 
     formatFromWeight: function (weight) {
-        let indexOf = CHAR_POOL.indexOf(String.fromCharCode(weight));
+        var v = weight + '', p, e;
+        if (v.indexOf(".") > -1) {
+            p = parseInt(weight);
+            e = parseInt(v.substring(v.indexOf(".") + 1));
+        } else {
+            e = null;
+            p = weight;
+        }
 
-        let p = parseInt(indexOf / 4) + 1;
-        let e = (p > 13) ? null : (indexOf % 4) + 1;
         return new Card(p, e);
-    },
-
-    /**
-     * weigth convert point
-     * @param weight
-     * @returns {number}
-     */
-    weightConvertPoint : function(weight) {
-        return parseInt((weight - START_CHAT) / 4) + 1;
     }
 }

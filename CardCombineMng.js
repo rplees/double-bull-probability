@@ -163,9 +163,10 @@ module.exports = {
             suffix = 'none_';
         }
 
-        suffix += parseInt(cardCombine.maxWeight);
-        if(cardCombine.maxWeight >= 10) {//再细分
-            suffix += "_" + parseInt(cardCombine.combines[1]);
+        let point = CardFormat.weightConvertPoint(cardCombine.maxWeight);
+        suffix += parseInt(point);
+        if(point >= 10) {//再细分
+            suffix += "_" + parseInt(CardFormat.weightConvertPoint(cardCombine.combines[1]));
         }
 
         suffix += ".json";
@@ -173,7 +174,7 @@ module.exports = {
     },
 
     buildCardCombineKeyRule(cardCombine) {
-        return cardCombine.combines.join('_');
+        return _.map(cardCombine.combines, o => String.fromCharCode(o)).join('');
     },
 
     getRank(cardCombine) {

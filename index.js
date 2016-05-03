@@ -8,7 +8,7 @@ const  CardColorEnum = require('./Card').CardColorEnum;
 const  CardFormat = require('./Card').CardFormat;
 const  CardCombine = require('./CardCombine');
 const  Card = require('./Card').Card;
-//CardCombineMng.statWriteFile();
+CardCombineMng.statWriteFile();
 
 var exe = function (c) {
     let cardCombine = new CardCombine(c);
@@ -16,17 +16,17 @@ var exe = function (c) {
     console.log("%s 牌的胜率为: %s", cardCombine.formatResult(), rate);
 }
 
-var array = [];
-for(var point = 5 ; point >= 3; point--) {
-    for(var color in CardColorEnum) {
-        array.push(new Card(point, CardColorEnum[color]).weight);
-    }
-}
-console.log(array.join(','))
-var list = new CombineAlgorithm(array, 5).getResult();
-list.forEach(function(c) {
-    exe(c);
-});
+//var array = [];
+//for(var point = 5 ; point >= 3; point--) {
+//    for(var color in CardColorEnum) {
+//        array.push(new Card(point, CardColorEnum[color]).weight);
+//    }
+//}
+//console.log(array.join(','))
+//var list = new CombineAlgorithm(array, 5).getResult();
+//list.forEach(function(c) {
+//    exe(c);
+//});
 
-exe([15, 14, 13.4, 13.3, 13.2]);
-exe([2.1, 1.4, 1.3, 1.2, 1.1]);
+//exe([15, 14, 13.4, 13.3, 13.2]);
+//exe([2.1, 1.4, 1.3, 1.2, 1.1]);
